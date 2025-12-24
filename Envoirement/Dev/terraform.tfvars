@@ -99,4 +99,30 @@ nsg_nic_config = {
     resource_group_name = "rg-atharv"
   }
 }
+
+vm={
+  vm1 = {
+    name = "linuxvm1"
+  resource_group_name   = "rg-atharv"
+    location = "centralindia"
+    admin_username = "adminuser"
+    admin_password = "P@ssword1234"
+    datanic_name= "nic1"
+    publisher = "Canonical"
+    offer     = "UbuntuServer"
+    sku       = "18.04-LTS"
    
+  }
+
+vm2 = {
+    name = "linuxvm2"
+    resource_group_name   = "rg-atharv"
+    location = "centralindia"
+    admin_username = "adminuser"
+    admin_password = "P@ssword1234!"
+    datanic_name= "nic2"
+    publisher = "Canonical"
+    offer     = "UbuntuServer"
+    sku       = "18.04-LTS"
+  }
+}

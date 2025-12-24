@@ -47,3 +47,10 @@ module "nsg_nic_config" {
   depends_on = [ module.nsg, module.nic ]
   
 }
+
+module "vm" {
+  source = "../../Modules/azurerm_virtual_machine"
+  vm = var.vm
+  depends_on = [ module.nic ]
+  
+}
