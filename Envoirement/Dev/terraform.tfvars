@@ -3,12 +3,7 @@ rg = {
         name = "rg-atharv"
         location = "centralindia"
     }   
-
- rgdev2 = {
-        name = "rg-atharv2"
-        location = "centralindia"
-    }   
- }
+}
 
 stg = {
     stgdev ={
