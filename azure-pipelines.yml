@@ -8,22 +8,43 @@ pool:
   name: 'new test'
 
 steps:
+# Step 1: Checkout GitHub repository
 - checkout: self
   clean: true
 
-# Step 1: Install Terraform
+# Step 2: Verify Terraform files exist
+- task: PowerShell@2
+  displayName: 'Verify Repository Files'
+  inputs:
+    targetType: 'inline'
+    script: |
+      $root = "$(Build.SourcesDirectory)"
+
+      Write-Host "Repository directory: $root"
+      Get-ChildItem -Path $root -Force
+
+      $tfFiles = Get-ChildItem -Path $root -Filter "*.tf" -File -Recurse
+
+      if (-not $tfFiles) {
+        throw "No Terraform .tf files found. Verify repository checkout and branch."
+      }
+
+      Write-Host "Terraform files found:"
+      $tfFiles | ForEach-Object { Write-Host $_.FullName }
+
+# Step 3: Install Terraform
 - task: TerraformInstaller@1
   displayName: 'Install Terraform'
   inputs:
     terraformVersion: '1.17.0'
 
-# Step 2: Initialize Terraform
+# Step 4: Terraform Init
 - task: TerraformTask@5
   displayName: 'Terraform Init'
   inputs:
     provider: 'azurerm'
     command: 'init'
-    workingDirectory: '$(System.DefaultWorkingDirectory)'
+    workingDirectory: '$(Build.SourcesDirectory)'
     backendServiceArm: 'AT&T'
     backendAzureRmOverrideSubscriptionID: '1f832fa0-5b4f-410c-9650-a4ef5bc628d3'
     backendAzureRmResourceGroupName: 'mk-rg'
@@ -31,34 +52,34 @@ steps:
     backendAzureRmContainerName: 'yoyo'
     backendAzureRmKey: 'attstate'
 
-# Step 3: Validate Terraform
+# Step 5: Terraform Validate
 - task: TerraformTask@5
   displayName: 'Terraform Validate'
   inputs:
     provider: 'azurerm'
     command: 'validate'
-    workingDirectory: '$(System.DefaultWorkingDirectory)'
+    workingDirectory: '$(Build.SourcesDirectory)'
 
-# Step 4: Create Terraform Plan
+# Step 6: Terraform Plan
 - task: TerraformTask@5
   name: terraformPlan
   displayName: 'Terraform Plan'
   inputs:
     provider: 'azurerm'
     command: 'plan'
-    workingDirectory: '$(System.DefaultWorkingDirectory)'
+    workingDirectory: '$(Build.SourcesDirectory)'
     commandOptions: '-out=tfplan'
     environmentServiceNameAzureRM: 'AT&T'
     environmentAzureRmOverrideSubscriptionID: '1f832fa0-5b4f-410c-9650-a4ef5bc628d3'
 
-# Step 5: Apply only when changes are detected
+# Step 7: Terraform Apply only when changes exist
 - task: TerraformTask@5
   displayName: 'Terraform Apply'
   condition: and(succeeded(), eq(variables['terraformPlan.changesPresent'], 'true'))
   inputs:
     provider: 'azurerm'
     command: 'apply'
-    workingDirectory: '$(System.DefaultWorkingDirectory)'
+    workingDirectory: '$(Build.SourcesDirectory)'
     commandOptions: 'tfplan'
     environmentServiceNameAzureRM: 'AT&T'
     environmentAzureRmOverrideSubscriptionID: '1f832fa0-5b4f-410c-9650-a4ef5bc628d3'
