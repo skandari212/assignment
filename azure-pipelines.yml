@@ -1,22 +1,24 @@
+
 # azure-pipelines.yml
 
 trigger:
   - non
 
-pool: new test
-    
-
+pool:
+  name: 'new test'
 
 steps:
 - task: TerraformInstaller@1
+  displayName: 'Install Terraform'
   inputs:
     terraformVersion: 'latest'
 
+# Step 1: Initialize Terraform and Azure Storage backend
 - task: TerraformTask@5
+  displayName: 'Terraform Init'
   inputs:
     provider: 'azurerm'
     command: 'init'
-    commandOptions: 'terraform Init'
     backendServiceArm: 'AT&T'
     backendAzureRmOverrideSubscriptionID: '1f832fa0-5b4f-410c-9650-a4ef5bc628d3'
     backendAzureRmResourceGroupName: 'mk-rg'
@@ -24,24 +26,29 @@ steps:
     backendAzureRmContainerName: 'yoyo'
     backendAzureRmKey: 'attstate'
 
+# Step 2: Validate Terraform configuration
 - task: TerraformTask@5
+  displayName: 'Terraform Validate'
   inputs:
     provider: 'azurerm'
     command: 'validate'
-    commandOptions: 'terraform validate'
 
+# Step 3: Generate Terraform plan
 - task: TerraformTask@5
+  displayName: 'Terraform Plan'
   inputs:
     provider: 'azurerm'
     command: 'plan'
-    commandOptions: 'terraform plan'
+    commandOptions: '-out=tfplan'
     environmentServiceNameAzureRM: 'AT&T'
     environmentAzureRmOverrideSubscriptionID: '1f832fa0-5b4f-410c-9650-a4ef5bc628d3'
 
+# Step 4: Apply the saved plan
 - task: TerraformTask@5
+  displayName: 'Terraform Apply'
   inputs:
     provider: 'azurerm'
     command: 'apply'
-    commandOptions: 'terraform apply'
+    commandOptions: '-auto-approve tfplan'
     environmentServiceNameAzureRM: 'AT&T'
     environmentAzureRmOverrideSubscriptionID: '1f832fa0-5b4f-410c-9650-a4ef5bc628d3'
