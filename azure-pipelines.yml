@@ -1,23 +1,47 @@
 # azure-pipelines.yml
 
 trigger:
-  - main
+  - non
 
 pool: new test
     
 
 
 stages:
-  - stage: TerraformPlan
-    displayName: Terraform Plan
-    jobs:
-      - job: Plan
-        steps:
-        
+- task: TerraformInstaller@1
+  inputs:
+    terraformVersion: 'latest'
 
-          - task: TerraformInstaller@1
-            displayName: Install Terraform
-            inputs:
-              terraformVersion: $(terraformVersion)
+- task: TerraformTask@5
+  inputs:
+    provider: 'azurerm'
+    command: 'init'
+    commandOptions: 'terraform Init'
+    backendServiceArm: 'AT&T'
+    backendAzureRmOverrideSubscriptionID: '1f832fa0-5b4f-410c-9650-a4ef5bc628d3'
+    backendAzureRmResourceGroupName: 'mk-rg'
+    backendAzureRmStorageAccountName: 'wwwwwwwertyuiolvdlskv'
+    backendAzureRmContainerName: 'yoyo'
+    backendAzureRmKey: 'attstate'
 
-            sta
+- task: TerraformTask@5
+  inputs:
+    provider: 'azurerm'
+    command: 'validate'
+    commandOptions: 'terraform validate'
+
+- task: TerraformTask@5
+  inputs:
+    provider: 'azurerm'
+    command: 'plan'
+    commandOptions: 'terraform plan'
+    environmentServiceNameAzureRM: 'AT&T'
+    environmentAzureRmOverrideSubscriptionID: '1f832fa0-5b4f-410c-9650-a4ef5bc628d3'
+
+- task: TerraformTask@5
+  inputs:
+    provider: 'azurerm'
+    command: 'apply'
+    commandOptions: 'terraform apply'
+    environmentServiceNameAzureRM: 'AT&T'
+    environmentAzureRmOverrideSubscriptionID: '1f832fa0-5b4f-410c-9650-a4ef5bc628d3'
